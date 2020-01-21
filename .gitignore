@@ -1,0 +1,18 @@
+# package directories
+node_modules
+jspm_packages
+
+# Nuxt
+.nuxt
+
+# Serverless directories
+.serverless
+
+# Webpack build directories
+.webpack
+
+# secret
+secrets.json
+
+# docker
+docker-compose.override.yml
