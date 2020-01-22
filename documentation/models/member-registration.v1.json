@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Member registration",
+  "type": "object",
+  "description": "Complete an invitation with a registration",
+  "properties": {
+    "firstname": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 50
+    },
+    "lastname": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 50
+    },
+    "zip": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 10
+    },
+    "birth": {
+      "type": [
+        "integer"
+      ],
+      "minimum": 1920,
+      "maximum": 2020
+    },
+    "password": {
+      "type": "string",
+      "format": "password",
+      "minLength": 6,
+      "maxLength": 64
+    }
+  },
+  "required": [
+    "firstname",
+    "lastname",
+    "zip",
+    "birth",
+    "password"
+  ]
+}

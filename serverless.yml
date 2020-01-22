@@ -47,6 +47,7 @@ functions:
       - sqs:
           arn: arn:aws:sqs:eu-west-3:252490098713:invitation
           batchSize: 1
+
   memberRegistration:
     handler: src/member/register.handler
     events:
@@ -55,6 +56,17 @@ functions:
           method: post
           cors:
             origin: '*'
+          reqValidatorName: "validateBodyAndParameters"
+          documentation:
+            summary: "Create something"
+            queryParams:
+              - type: "string"
+                name: "invitation"
+                description: "invitation token" 
+                required: true
+            requestModels:
+              "application/json": "MemberRegistration"
+
   # stripePayment:
   #   handler: src/payment/succeed.stripePayment
   #   events:
@@ -62,6 +74,7 @@ functions:
   #     - http: ANY /{proxy+}
 
 plugins:
+  - serverless-reqvalidator-plugin
   - serverless-aws-documentation
   - serverless-webpack
 
@@ -76,7 +89,23 @@ custom:
         # - serverless-webpack
         # - webpack
         # - webpack-node-externals
-    
+        
+  documentation:
+    api:
+      info:
+        version: "1" # see note above about this being ignored
+        title: "HTTP API of MUSES citizen lobby"
+        contact:
+          name: "Ludovic FLEURY"
+          url: "https://twitter.com/ludofleury"
+          email: "ludovic.fleury@lobby-citoyen-muses.org"
+    models:
+      -
+        name: "MemberRegistration"
+        description: "Register a member from an invitation"
+        contentType: "application/json"
+        schema: ${file(documentation/models/member-registration.v1.json)}
+ 
 # you can overwrite defaults here
 
 # you can add statements to the Lambda function's IAM Role here
@@ -152,7 +181,17 @@ package:
 #      variable2: value2
 
 # you can add CloudFormation resource templates here
-#resources:
+resources:
+  Resources:
+    validateBodyAndParameters:  
+      Type: "AWS::ApiGateway::RequestValidator"
+      Properties:
+        Name: 'validateBodyAndParameters'
+        RestApiId: 
+          Ref: ApiGatewayRestApi
+        ValidateRequestBody: true
+        ValidateRequestParameters: true
+        
 #  Resources:
 #    NewResource:
 #      Type: AWS::S3::Bucket

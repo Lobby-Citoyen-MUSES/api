@@ -37,6 +37,7 @@ exports.handler = async (event, context) => {
         firstname: registration.firstname,
         lastname: registration.lastname,
         zip: registration.zip,
+        birth: registration.birth,
         registeredAt: new Date().toISOString(),
         active: true 
     };
