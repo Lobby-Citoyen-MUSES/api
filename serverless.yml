@@ -38,7 +38,9 @@ provider:
       Resource: "*"
   environment:
     NODE_ENV: ${self:custom.secrets.NODE_ENV}
+    JWT_SECRET: ${self:custom.secrets.JWT_SECRET}
     SQS_URL_INVITATION: ${self:custom.secrets.SQS_URL_INVITATION}
+
 
 functions:
   memberInvitation:
@@ -58,7 +60,7 @@ functions:
             origin: '*'
           reqValidatorName: "validateBodyAndParameters"
           documentation:
-            summary: "Create something"
+            summary: "Member registration"
             queryParams:
               - type: "string"
                 name: "invitation"
@@ -66,6 +68,30 @@ functions:
                 required: true
             requestModels:
               "application/json": "MemberRegistration"
+
+  memberAuthentication:
+    handler: src/member/authenticate.handler
+    events:
+      - http:
+          path: /auth
+          method: post
+          cors:
+            origin: '*'
+          documentation:
+            summary: "OAuth password grant"
+            queryParams:
+              - type: "string"
+                name: "grant_type"
+                description: "OAuth grant type" 
+                required: true
+              - type: "string"
+                name: "username"
+                description: "member identifier" 
+                required: true
+              - type: "string"
+                name: "password"
+                description: "member password" 
+                required: true
 
   # stripePayment:
   #   handler: src/payment/succeed.stripePayment

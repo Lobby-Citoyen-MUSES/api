@@ -1,6 +1,7 @@
 const aws = require('aws-sdk');
 const ddb = new aws.DynamoDB.DocumentClient();
 const sqs = new aws.SQS({ apiVersion: '2012-11-05' });
+const bcrypt = require('bcryptjs');
 
 exports.handler = async (event, context) => {
     if (!("invitation" in event.queryStringParameters)) {
@@ -36,6 +37,7 @@ exports.handler = async (event, context) => {
         email: invitation.email,
         firstname: registration.firstname,
         lastname: registration.lastname,
+        signature: 'anonyme',
         zip: registration.zip,
         birth: registration.birth,
         registeredAt: new Date().toISOString(),
@@ -44,7 +46,8 @@ exports.handler = async (event, context) => {
 
     const credential = {
         email: invitation.email,
-        password: registration.password,
+        password: bcrypt.hashSync(registration.password, 10),
+        level: "member",
         memberId: member.id
     }
 
