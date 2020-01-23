@@ -14,8 +14,16 @@ provider:
   region: eu-west-3
   endpointType: regional
   iamRoleStatements: # permissions for all of your functions can be set here
+    - Effect: Allow 
+      Action: 
+          - secretsmanager:GetSecretValue
+      Resource: ${self:custom.secrets.SSM_ARN}
+    - Effect: Allow 
+      Action: 
+          - kms:Decrypt
+      Resource: ${self:custom.secrets.KMS_ARN}
     - Effect: Allow
-      Action: # Gives permission to DynamoDB tables in a specific region
+      Action:
           - dynamodb:DescribeTable
           - dynamodb:Query
           - dynamodb:Scan
@@ -24,7 +32,7 @@ provider:
           - dynamodb:UpdateItem
       Resource: ${self:custom.secrets.DDB_ARN}
     - Effect: Allow
-      Action: # Gives permission to DynamoDB tables in a specific region
+      Action: 
           - dynamodb:DeleteItem
       Resource: ${self:custom.secrets.DDB_ARN_INVITATION}
     - Effect: Allow
@@ -38,9 +46,6 @@ provider:
       Resource: "*"
   environment:
     NODE_ENV: ${self:custom.secrets.NODE_ENV}
-    JWT_SECRET: ${self:custom.secrets.JWT_SECRET}
-    SQS_URL_INVITATION: ${self:custom.secrets.SQS_URL_INVITATION}
-
 
 functions:
   memberInvitation:
@@ -52,6 +57,8 @@ functions:
 
   memberRegistration:
     handler: src/member/register.handler
+    environment:
+      SQS_URL_INVITATION: ${self:custom.secrets.SQS_URL_INVITATION}
     events:
       - http:
           path: /members
@@ -71,6 +78,9 @@ functions:
 
   memberAuthentication:
     handler: src/member/authenticate.handler
+    environment:
+      JWT_SIGN_ALGORITHM: ${self:custom.secrets.JWT_SIGN_ALGORITHM} 
+      JWT_PRIVATE_KEY: ${self:custom.secrets.JWT_PRIVATE_KEY}
     events:
       - http:
           path: /auth
@@ -92,6 +102,12 @@ functions:
                 name: "password"
                 description: "member password" 
                 required: true
+  
+  memberAuthorization:
+    handler: src/member/authorize.handler
+    environment:
+      JWT_SIGN_ALGORITHM: ${self:custom.secrets.JWT_SIGN_ALGORITHM} 
+      JWT_PUBLIC_KEY: ${file(certs/jwt.pub)}
 
   # stripePayment:
   #   handler: src/payment/succeed.stripePayment

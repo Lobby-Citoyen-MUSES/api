@@ -13,6 +13,8 @@ jspm_packages
 
 # secret
 secrets.json
+certs/
 
 # docker
 docker-compose.override.yml
+

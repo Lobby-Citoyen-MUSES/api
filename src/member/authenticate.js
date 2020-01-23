@@ -3,9 +3,10 @@ const aws = require('aws-sdk');
 const ddb = new aws.DynamoDB.DocumentClient();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const key = process.env.JWT_SECRET;
+const sm = new aws.SecretsManager({ region: process.env.AWS_REGION });
+let jwtPrivateKey;
 
-exports.handler = async (event, context) => {
+exports.handler = async (event, context) => {   
     const attempt = queryString.parse(event.body);
     if (attempt.grant_type !== 'password') {
         return response(400, { 'error': 'unsupported_grant_type'});
@@ -32,8 +33,8 @@ exports.handler = async (event, context) => {
     const member = results.Items[0];
     const token = jwt.sign(
         { data: {id: member.id, role: credentials.level, signature: member.signature}},
-        key,
-        { expiresIn: '30d' }
+        await getJwtPrivateKey(),
+        { algorithm: process.env.JWT_SIGN_ALGORITHM, expiresIn: '30d' }
     );
 
     return response(200, { access_token: token, token_type: "Bearer", expires_in: 86400 * 30});
@@ -57,6 +58,22 @@ async function fetchMember(id) {
             ":id": id
         }
     }).promise()
+}
+
+async function getJwtPrivateKey() {
+    if (!jwtPrivateKey) {
+        jwtPrivateKey = await new Promise((resolve, reject) => {
+            sm.getSecretValue({ SecretId: process.env.JWT_PRIVATE_KEY }, function (err, data) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(data.SecretString);
+                }
+            });
+        });
+    }
+
+    return jwtPrivateKey;
 }
 
 function response(code, body, headers) {
