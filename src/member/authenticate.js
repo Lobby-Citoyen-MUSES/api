@@ -32,7 +32,7 @@ exports.handler = async (event, context) => {
 
     const member = results.Items[0];
     const token = jwt.sign(
-        { data: {id: member.id, role: credentials.level, signature: member.signature}},
+        { data: {id: member.id, role: credentials.level, displayName: member.displayName}},
         await getJwtPrivateKey(),
         { algorithm: process.env.JWT_SIGN_ALGORITHM, expiresIn: '30d' }
     );

@@ -37,7 +37,7 @@ exports.handler = async (event, context) => {
         email: invitation.email,
         firstname: registration.firstname,
         lastname: registration.lastname,
-        signature: 'anonyme',
+        displayName: 'anonyme',
         zip: registration.zip,
         birth: registration.birth,
         registeredAt: new Date().toISOString(),

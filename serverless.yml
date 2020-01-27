@@ -48,6 +48,9 @@ provider:
     NODE_ENV: ${self:custom.secrets.NODE_ENV}
 
 functions:
+  memberAuthorization:
+    handler: authorize.handler
+
   memberInvitation:
     handler: src/member/invite.handler
     events:
