@@ -48,8 +48,23 @@ provider:
     NODE_ENV: ${self:custom.secrets.NODE_ENV}
 
 functions:
-  memberAuthorization:
-    handler: authorize.handler
+  authentication:
+    handler: src/security/authenticate.handler
+    environment:
+      JWT_SIGN_ALGORITHM: ${self:custom.secrets.JWT_SIGN_ALGORITHM} 
+      JWT_PRIVATE_KEY: ${self:custom.secrets.JWT_PRIVATE_KEY}
+    events:
+      - http:
+          path: /auth
+          method: post
+          cors:
+            origin: '*'
+  
+  authorizationMember:
+    handler: src/security/authorizeMember.handler
+    environment:
+      JWT_SIGN_ALGORITHM: ${self:custom.secrets.JWT_SIGN_ALGORITHM} 
+      JWT_PUBLIC_KEY: ${file(certs/jwt.pub)}
 
   memberInvitation:
     handler: src/member/invite.handler
@@ -68,49 +83,47 @@ functions:
           method: post
           cors:
             origin: '*'
-          reqValidatorName: "validateBodyAndParameters"
-          documentation:
-            summary: "Member registration"
-            queryParams:
-              - type: "string"
-                name: "invitation"
-                description: "invitation token" 
-                required: true
-            requestModels:
-              "application/json": "MemberRegistration"
+          request:
+            parameters:
+              querystrings:
+                invitation: true
+            schema:
+              application/json: ${file(documentation/models/member-registration.v1.json)}
+          # reqValidatorName: "validateBodyAndParameters"
+          # documentation:
+          #   summary: "Member registration"
+          #   queryParams:
+          #     - type: "string"
+          #       name: "invitation"
+          #       description: "invitation token" 
+          #       required: true
+          #   requestModels:
+          #     "application/json": "MemberRegistration"
+    
+  # test:
+  #   handler: src/member/test.handler
+  #   events:
+  #     - http:
+  #         authorizer: 
+  #           name: authorizationMember
+  #           resultTtlInSeconds: 0
+  #           identitySource: method.request.header.Authorization
+  #           identityValidationExpression: ^Bearer ([-0-9a-zA-z\.]+)$
+  #           type: token
+  #         path: /test
+  #         method: get
+  #         cors:
+  #           origin: '*'
 
-  memberAuthentication:
-    handler: src/member/authenticate.handler
-    environment:
-      JWT_SIGN_ALGORITHM: ${self:custom.secrets.JWT_SIGN_ALGORITHM} 
-      JWT_PRIVATE_KEY: ${self:custom.secrets.JWT_PRIVATE_KEY}
-    events:
-      - http:
-          path: /auth
-          method: post
-          cors:
-            origin: '*'
-          documentation:
-            summary: "OAuth password grant"
-            queryParams:
-              - type: "string"
-                name: "grant_type"
-                description: "OAuth grant type" 
-                required: true
-              - type: "string"
-                name: "username"
-                description: "member identifier" 
-                required: true
-              - type: "string"
-                name: "password"
-                description: "member password" 
-                required: true
-  
-  memberAuthorization:
-    handler: src/member/authorize.handler
-    environment:
-      JWT_SIGN_ALGORITHM: ${self:custom.secrets.JWT_SIGN_ALGORITHM} 
-      JWT_PUBLIC_KEY: ${file(certs/jwt.pub)}
+  # test2:
+  #   handler: src/member/test2.handler
+  #   events:
+  #     - http:
+  #         authorizer: authorizationMember
+  #         path: /test2
+  #         method: get
+  #         cors:
+  #           origin: '*'
 
   # stripePayment:
   #   handler: src/payment/succeed.stripePayment
@@ -119,8 +132,6 @@ functions:
   #     - http: ANY /{proxy+}
 
 plugins:
-  - serverless-reqvalidator-plugin
-  - serverless-aws-documentation
   - serverless-webpack
 
 custom:
@@ -134,22 +145,6 @@ custom:
         # - serverless-webpack
         # - webpack
         # - webpack-node-externals
-        
-  documentation:
-    api:
-      info:
-        version: "1" # see note above about this being ignored
-        title: "HTTP API of MUSES citizen lobby"
-        contact:
-          name: "Ludovic FLEURY"
-          url: "https://twitter.com/ludofleury"
-          email: "ludovic.fleury@lobby-citoyen-muses.org"
-    models:
-      -
-        name: "MemberRegistration"
-        description: "Register a member from an invitation"
-        contentType: "application/json"
-        schema: ${file(documentation/models/member-registration.v1.json)}
  
 # you can overwrite defaults here
 
@@ -227,15 +222,22 @@ package:
 
 # you can add CloudFormation resource templates here
 resources:
-  Resources:
-    validateBodyAndParameters:  
-      Type: "AWS::ApiGateway::RequestValidator"
-      Properties:
-        Name: 'validateBodyAndParameters'
-        RestApiId: 
-          Ref: ApiGatewayRestApi
-        ValidateRequestBody: true
-        ValidateRequestParameters: true
+  # Resources:
+  #   validateParameters:  
+  #     Type: "AWS::ApiGateway::RequestValidator"
+  #     Properties:
+  #       Name: 'validateBodyAndParameters'
+  #       RestApiId: 
+  #         Ref: ApiGatewayRestApi
+  #       ValidateRequestParameters: true
+  #   validateBodyAndParameters:  
+  #     Type: "AWS::ApiGateway::RequestValidator"
+  #     Properties:
+  #       Name: 'validateBodyAndParameters'
+  #       RestApiId: 
+  #         Ref: ApiGatewayRestApi
+  #       ValidateRequestBody: true
+  #       ValidateRequestParameters: true
         
 #  Resources:
 #    NewResource:

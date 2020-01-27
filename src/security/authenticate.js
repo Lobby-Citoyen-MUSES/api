@@ -8,6 +8,10 @@ let jwtPrivateKey;
 
 exports.handler = async (event, context) => {   
     const attempt = queryString.parse(event.body);
+    if (!("grant_type" in attempt && "username" in attempt && "password" in attempt)) {
+        return response(400);
+    }
+
     if (attempt.grant_type !== 'password') {
         return response(400, { 'error': 'unsupported_grant_type'});
     }
@@ -32,7 +36,7 @@ exports.handler = async (event, context) => {
 
     const member = results.Items[0];
     const token = jwt.sign(
-        { data: {id: member.id, role: credentials.level, displayName: member.displayName}},
+        {id: member.id, role: credentials.level, displayName: member.displayName},
         await getJwtPrivateKey(),
         { algorithm: process.env.JWT_SIGN_ALGORITHM, expiresIn: '30d' }
     );

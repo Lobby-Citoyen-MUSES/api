@@ -1,12 +1,13 @@
 const jwt = require('jsonwebtoken');
 
 exports.handler = async (event, context) => {   
-    const token = event.authorizationToken;
+    const hash = event.authorizationToken.split('Bearer')[1].trim();
+    var token;
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_PUBLIC_KEY, { algorithm: process.env.JWT_SIGN_ALGORITHM });
+        token = jwt.verify(hash, process.env.JWT_PUBLIC_KEY, { algorithm: process.env.JWT_SIGN_ALGORITHM });
     } catch (error) {
-        switch (error.name) {
+        switch (error.errorType) {
             case "TokenExpiredError":
                 /*
                     err = {
@@ -22,6 +23,7 @@ exports.handler = async (event, context) => {
                     message: 'jwt malformed'
                     }
                 */
+                throw error
             case "NotBeforeError":
                 /*
                     err = {
@@ -35,11 +37,11 @@ exports.handler = async (event, context) => {
         }
     }
 
-    if (decoded.payload.level !== 'member') {
-        return generatePolicy(decoded.payload, 'Deny', event.methodArn); // HTTP 403
+    if (token.role !== 'member') {
+        return Promise.resolve(generatePolicy(token, 'Deny', event.methodArn)); // HTTP 403
     }
 
-    return generatePolicy(decoded.payload, 'Allow', event.methodArn); // HTTP 200
+    return Promise.resolve(generatePolicy(token, 'Allow', event.methodArn)); // HTTP 200
 }
 
 function generatePolicy (token, effect, resource) {
@@ -47,21 +49,21 @@ function generatePolicy (token, effect, resource) {
         throw new 'Invalid policy';
     }
 
-    return authorization = {
+    return {
         principalId: token.id,
         policyDocument: {
             Version: '2012-10-17',
             Statement: [
                 {
-                    Action: effect,
-                    Resource: Resource,
+                    Action: "execute-api:Invoke",
+                    Effect: effect,
+                    Resource: resource,
                 }
             ]
         },
         context: {
-            id: token.id,
-            role: token.level,
-            displayName: token.username
+            role: token.role,
+            displayName: token.displayName
         }
     };
 }
