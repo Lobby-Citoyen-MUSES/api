@@ -100,20 +100,20 @@ functions:
           #   requestModels:
           #     "application/json": "MemberRegistration"
     
-  # test:
-  #   handler: src/member/test.handler
-  #   events:
-  #     - http:
-  #         authorizer: 
-  #           name: authorizationMember
-  #           resultTtlInSeconds: 0
-  #           identitySource: method.request.header.Authorization
-  #           identityValidationExpression: ^Bearer ([-0-9a-zA-z\.]+)$
-  #           type: token
-  #         path: /test
-  #         method: get
-  #         cors:
-  #           origin: '*'
+  memberDomicile:
+    handler: src/member/domicile.handler
+    events:
+      - http:
+          authorizer: 
+            name: authorizationMember
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            identityValidationExpression: ^Bearer ([-0-9a-zA-z\.]+)$
+            type: token
+          path: /domicile
+          method: post
+          cors:
+            origin: '*'
 
   # test2:
   #   handler: src/member/test2.handler
