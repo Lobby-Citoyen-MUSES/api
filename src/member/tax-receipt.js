@@ -53,8 +53,11 @@ exports.handler = async (event, context) => {
 
         for (const invoice of invoicesResults.data) {
             if (invoice.charge.created >= startFiscalYear && invoice.charge.created <= endFiscalYear) {
+                const date = new Date();
+                date.setTime(invoice.charge.created * 1000);
+
                 receipt.donations.push({
-                    date: invoice.charge.created,
+                    date: date.toISOString(),
                     amount: invoice.amount_paid 
                 });
             }
