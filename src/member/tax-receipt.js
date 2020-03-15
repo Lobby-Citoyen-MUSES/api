@@ -42,8 +42,8 @@ exports.handler = async (event, context) => {
         donations: []
     };
 
-    const startFiscalYear = Math.round(((new Date(2019, 01, 01, 00, 00, 00)).getTime()) / 1000);
-    const endFiscalYear = Math.round(((new Date(2019, 12, 31, 23, 59, 59)).getTime()) / 1000);
+    const startFiscalYear = Math.round(((new Date(2019, 00, 01, 00, 00, 00)).getTime()) / 1000);
+    const endFiscalYear = Math.round(((new Date(2019, 11, 31, 23, 59, 59)).getTime()) / 1000);
 
     for (const customer of results.data) {
         let invoicesResults =  await fetchStripeInvoices(customer);
