@@ -1,6 +1,5 @@
 # MUSES HTTP API
 
-
 ## JWT RSA256 Key Management
 
 ### Generating the key

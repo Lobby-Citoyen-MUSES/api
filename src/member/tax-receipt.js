@@ -74,7 +74,7 @@ async function fetchMember(id) {
 async function initStripe() {
     if (!stripe) {
         stripeSecretKey = await new Promise((resolve, reject) => {
-            sm.getSecretValue({ SecretId: process.env.STRIPE_SECRET_KEY }, function (err, data) {
+            sm.getSecretValue({ SecretId: process.env.STRIPE_RESTRICTED_KEY }, function (err, data) {
                 if (err) {
                     reject(err);
                 } else {
