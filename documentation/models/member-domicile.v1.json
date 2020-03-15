@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Member domicile",
+  "type": "object",
+  "description": "Domicile a member for fiscal benefits",
+  "properties": {
+    "line1": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 200
+    },
+    "line2": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 200
+    },
+    "zip": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 20
+    },
+    "locality": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 200
+    }
+  },
+  "required": [
+    "zip",
+    "locality"
+  ]
+}
