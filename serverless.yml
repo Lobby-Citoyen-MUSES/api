@@ -126,7 +126,7 @@ functions:
       - http:
           authorizer: 
             name: authorizationMember
-          path: /receipt
+          path: /tax-receipts
           method: get
           cors:
             origin: '*'
