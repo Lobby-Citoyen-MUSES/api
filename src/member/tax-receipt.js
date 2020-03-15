@@ -11,7 +11,7 @@ exports.handler = async (event, context) => {
         role: event.requestContext.authorizer.role
     };
 
-    let results = await fetchMember(user.principalId)
+    let results = await fetchMember(user.id)
     if (results.Items.length !== 1) {
         console.error("Unable to fetch member");
         return response(500);
@@ -46,13 +46,13 @@ exports.handler = async (event, context) => {
     const endFiscalYear = Math.round(((new Date(2019, 12, 31, 23, 59, 59)).getTime()) / 1000);
 
     for (const customer of results.data) {
-        let invoicesResults = fetchStripeInvoices(customer);
+        let invoicesResults =  await fetchStripeInvoices(customer);
         if (invoicesResults.data.length === 0) {
             continue;
         }
 
         for (const invoice of invoicesResults.data) {
-            if (charge.created >= startFiscalYear && charge.created <= endFiscalYear) {
+            if (invoice.charge.created >= startFiscalYear && invoice.charge.created <= endFiscalYear) {
                 receipt.donations.push({
                     date: invoice.charge.created,
                     amount: invoice.amount_paid 
@@ -67,13 +67,16 @@ exports.handler = async (event, context) => {
 async function fetchMember(id) {
     return await ddb.query({
         TableName: "members",
-        Key: {"id": id}
+        KeyConditionExpression: "id = :id",
+        ExpressionAttributeValues: {
+            ":id": id
+        }
     }).promise()
 }
 
 async function initStripe() {
     if (!stripe) {
-        stripeSecretKey = await new Promise((resolve, reject) => {
+        const stripeSecretKey = await new Promise((resolve, reject) => {
             sm.getSecretValue({ SecretId: process.env.STRIPE_RESTRICTED_KEY }, function (err, data) {
                 if (err) {
                     reject(err);
@@ -90,11 +93,11 @@ async function initStripe() {
 }
 
 async function fetchStripeCustomers(email) {
-    return await stripe.customers.list({ email: email }).promise();
+    return await stripe.customers.list({ email: email });
 }
 
-async function fetchStripeInvoices(customerId) {
-    return await stripe.invoices.list({ customer: customerId, status: "paid", expand: ['charge'] }).promise();
+async function fetchStripeInvoices(customer) {
+    return await stripe.invoices.list({ customer: customer.id, status: "paid", expand: ['data.charge'] });
 }
 
 function response(code, body, headers) {

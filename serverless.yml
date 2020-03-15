@@ -120,14 +120,12 @@ functions:
 
   taxReceipt:
     handler: src/member/tax-receipt.handler
+    environment:
+      STRIPE_RESTRICTED_KEY: ${self:custom.secrets.STRIPE_RESTRICTED_KEY}
     events:
       - http:
           authorizer: 
             name: authorizationMember
-            resultTtlInSeconds: 0
-            identitySource: method.request.header.Authorization
-            identityValidationExpression: ^Bearer ([-0-9a-zA-z\.]+)$
-            type: token
           path: /receipt
           method: get
           cors:
