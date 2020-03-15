@@ -1,6 +1,7 @@
 const aws = require('aws-sdk');
 const ddb = new aws.DynamoDB.DocumentClient();
-const stripe = require('stripe')('sk_test_sg177E0Vs2Uff6Slp9vD107Q00ACVXanjH');
+const sm = new aws.SecretsManager({ region: process.env.AWS_REGION });
+let stripe;
 
 
 exports.handler = async (event, context) => {
@@ -17,6 +18,10 @@ exports.handler = async (event, context) => {
     }
 
     const member = results.Items[0];
+
+    if (!stripe) {
+        await initStripe();
+    }
 
     results = await fetchStripeCustomers(member.email);
     if (results.data.length === 0) {
@@ -64,6 +69,24 @@ async function fetchMember(id) {
         TableName: "members",
         Key: {"id": id}
     }).promise()
+}
+
+async function initStripe() {
+    if (!stripe) {
+        stripeSecretKey = await new Promise((resolve, reject) => {
+            sm.getSecretValue({ SecretId: process.env.STRIPE_SECRET_KEY }, function (err, data) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(data.SecretString);
+                }
+            });
+        });
+
+        stripe = require('stripe')(stripeSecretKey);
+    }
+
+    return stripe;
 }
 
 async function fetchStripeCustomers(email) {
