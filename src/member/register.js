@@ -67,8 +67,8 @@ exports.handler = async (event, context) => {
     return response(201);
 };
 
-async function fetchInvitations(id) {
-    return await ddb.query({
+function fetchInvitations(id) {
+    return ddb.query({
         TableName: "invitations",
         KeyConditionExpression: "id = :id",
         ExpressionAttributeValues: {
@@ -77,8 +77,8 @@ async function fetchInvitations(id) {
     }).promise()
 }
 
-async function persist(member, credential) {
-    return await ddb.transactWrite({
+function persist(member, credential) {
+    return ddb.transactWrite({
         TransactItems: [
             {
                 Put: {
@@ -98,8 +98,8 @@ async function persist(member, credential) {
     }).promise();
 }
 
-async function purgeInvitation(invitation) {
-    return await ddb.delete({
+function purgeInvitation(invitation) {
+    return ddb.delete({
         TableName: "invitations",
         Key: {
             "id": invitation.id,
@@ -108,8 +108,8 @@ async function purgeInvitation(invitation) {
     }).promise();
 }
 
-async function refreshInvitation(invitation) {
-    return await sqs.sendMessage({ MessageBody: JSON.stringify({ email: invitation.email }), QueueUrl: process.env.SQS_URL_INVITATION }).promise()
+function refreshInvitation(invitation) {
+    return sqs.sendMessage({ MessageBody: JSON.stringify({ email: invitation.email }), QueueUrl: process.env.SQS_URL_INVITATION }).promise()
 }
 
 function response(code, body, headers) {
