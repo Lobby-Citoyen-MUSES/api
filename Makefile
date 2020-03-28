@@ -10,4 +10,7 @@ package:
 	docker-compose run serverless package
 
 deployment:
-	docker-compose run serverless deploy
+	docker-compose run serverless deploy --stage preprod
+
+prod:
+	docker-compose run serverless deploy --stage prod
