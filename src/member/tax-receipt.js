@@ -29,6 +29,7 @@ exports.handler = async (event, context) => {
     }
 
     const receipt = {
+        id: '2019-' + user.id,
         donator: {
             firstname: member.firstname,
             lastname: member.lastname,
