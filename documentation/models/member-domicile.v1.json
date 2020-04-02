@@ -5,12 +5,18 @@
   "description": "Domicile a member for fiscal benefits",
   "properties": {
     "line1": {
-      "type": "string",
+      "type": [
+        "string",
+        "null"
+      ],
       "minLength": 2,
       "maxLength": 200
     },
     "line2": {
-      "type": "string",
+      "type": [
+        "string",
+        "null"
+      ],
       "minLength": 2,
       "maxLength": 200
     },
@@ -28,5 +34,8 @@
   "required": [
     "zip",
     "locality"
-  ]
+  ],
+  "x-examples": {
+    "example-1": {}
+  }
 }

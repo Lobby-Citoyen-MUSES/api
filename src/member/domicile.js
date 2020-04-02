@@ -24,12 +24,9 @@ async function domicileMember(id, address) {
     return await ddb.update({
         TableName: "members",
         Key: { "id": id },
-        UpdateExpression: "set address.line1 = :line1, address.line2 = :line2, address.zip = :zip, address.locality = :locality",
+        UpdateExpression: "set address = :address",
         ExpressionAttributeValues: {
-            ":line1": address.line1,
-            ":line2": address.line2,
-            ":zip": address.zip,
-            ":locality": address.locality
+            ":address": address
         }
     }).promise()
 }

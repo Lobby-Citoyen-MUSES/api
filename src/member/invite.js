@@ -13,6 +13,8 @@ const ses = new aws.SES({ region: 'eu-west-1' });
 const oneDay = 86400000;
 const thirtyDays = oneDay * 30;
 const emailPattern = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a - zA - Z0 - 9])?(?:\.[a - zA - Z0 - 9](?: [a - zA - Z0 - 9 -]{ 0, 61}[a - zA - Z0 - 9])?)*$/;
+const email = `this is a`;
+
 
 exports.handler = async (event, context) => {
     const message = event.Records[0];
