@@ -34,8 +34,5 @@
   "required": [
     "zip",
     "locality"
-  ],
-  "x-examples": {
-    "example-1": {}
-  }
+  ]
 }

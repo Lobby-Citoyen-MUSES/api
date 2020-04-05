@@ -12,8 +12,6 @@ const ddb = new aws.DynamoDB.DocumentClient();
 const ses = new aws.SES({ region: 'eu-west-1' });
 const oneDay = 86400000;
 const thirtyDays = oneDay * 30;
-const emailPattern = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a - zA - Z0 - 9])?(?:\.[a - zA - Z0 - 9](?: [a - zA - Z0 - 9 -]{ 0, 61}[a - zA - Z0 - 9])?)*$/;
-const email = `this is a`;
 
 
 exports.handler = async (event, context) => {
@@ -55,17 +53,43 @@ async function send(invitation) {
             Body: {
                 Text: {
                     Charset: "UTF-8",
-                    Data: "https://muses-lobby-citoyen.org/inscription?invitation=" + invitation.id
+                    Data: composeEmail(invitation)
                 }
 
             },
             Subject: {
                 Charset: "UTF-8",
-                Data: "Inscription au Lobby citoyen MUSES"
+                Data: "Votre inscription au Lobby citoyen MUSES"
             }
         }
     };
 
 
     return await ses.sendEmail(email).promise();
+}
+
+function composeEmail(invitation) {
+    const text = `Cher(e) adhérent(e),
+
+Le Lobby citoyen est très fier de voir une nouvelle Muse venir l’inspirer !
+
+Par votre soutien, vous nous donnez les moyens d’agir au quotidien pour changer les choses.
+
+Par votre présence, vous renforcez l’indépendance et l’influence de MUSES.
+
+Vous pouvez d'ores et déjà finaliser votre adhésion en créant un espace adhérent personnel : {{LINK}}.
+
+MUSES étant en cours de développement, nous vous remercions de votre indulgence car notre esprit de co-construction s’applique également aux diverses fonctionnalités que nous vous proposons.
+
+Le principe du Lobby citoyen étant de mettre entre vos mains un nouvel outil démocratique, n'hésitez surtout pas à nous faire part de vos propositions à l'adresse contact@muses-lobby-citoyen.org !
+
+
+Nous tenons à vous remercier chaleureusement pour votre engagement.
+
+
+Solidairement,
+L'équipe de MUSES
+`;
+
+    return text.replace('{{LINK}}', 'https://muses-lobby-citoyen.org/inscription?invitation=' + invitation.id);
 }

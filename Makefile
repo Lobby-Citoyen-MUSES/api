@@ -9,8 +9,8 @@ qa:
 package:
 	docker-compose run serverless package
 
-deployment:
+staging:
 	docker-compose run serverless deploy --stage preprod
 
-prod:
+deployment:
 	docker-compose run serverless deploy --stage prod
