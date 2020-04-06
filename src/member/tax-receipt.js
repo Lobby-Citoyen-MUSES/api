@@ -19,6 +19,12 @@ exports.handler = async (event, context) => {
 
     const member = results.Items[0];
 
+    console.log(member);
+
+    if (!member.address.hasOwnProperty('zip') || !member.address.hasOwnProperty('locality')) {
+        return response(409);
+    }
+
     if (!stripe) {
         await initStripe();
     }
@@ -47,7 +53,7 @@ exports.handler = async (event, context) => {
     const endFiscalYear = Math.round(((new Date(2019, 11, 31, 23, 59, 59)).getTime()) / 1000);
 
     for (const customer of results.data) {
-        let invoicesResults =  await fetchStripeInvoices(customer);
+        let invoicesResults = await fetchStripeInvoices(customer);
         if (invoicesResults.data.length === 0) {
             continue;
         }
@@ -59,7 +65,7 @@ exports.handler = async (event, context) => {
 
                 receipt.donations.push({
                     date: date.toISOString(),
-                    amount: invoice.amount_paid 
+                    amount: invoice.amount_paid
                 });
             }
         }

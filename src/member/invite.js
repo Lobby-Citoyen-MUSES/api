@@ -83,7 +83,6 @@ MUSES étant en cours de développement, nous vous remercions de votre indulgenc
 
 Le principe du Lobby citoyen étant de mettre entre vos mains un nouvel outil démocratique, n'hésitez surtout pas à nous faire part de vos propositions à l'adresse contact@muses-lobby-citoyen.org !
 
-
 Nous tenons à vous remercier chaleureusement pour votre engagement.
 
 
