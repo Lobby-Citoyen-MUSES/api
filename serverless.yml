@@ -126,6 +126,10 @@ functions:
       - http:
           authorizer: 
             name: authorizationMember
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.Authorization
+            identityValidationExpression: ^Bearer ([-0-9a-zA-z\.]+)$
+            type: token
           path: /tax-receipts
           method: get
           cors:
