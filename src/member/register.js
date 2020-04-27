@@ -14,7 +14,7 @@ exports.handler = async (event, context) => {
         return response(404);
     }
 
-    const now = new Date().getTime();
+    const now = new Date().getTime() / 1000; // in seconds
     const freshInvitations = invitations.filter(invitation => invitation.expiresAt > now);
     if (freshInvitations.length === 0) {
         try {
