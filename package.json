@@ -9,7 +9,7 @@
     "stripe": "^8.38.0"
   },
   "devDependencies": {
-    "aws-sdk": "^2.650.0",
+    "aws-sdk": "^2.814.0",
     "serverless-aws-documentation": "^1.1.0",
     "serverless-reqvalidator-plugin": "^1.0.3",
     "serverless-webpack": "^5.3.1",
